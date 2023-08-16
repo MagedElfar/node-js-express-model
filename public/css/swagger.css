@@ -1,0 +1,8 @@
+.swagger-ui .topbar {
+    background-color: #f7f7f7 !important;
+    display: none;
+}
+
+.swagger-ui .model-box {
+    padding: 10px 15px;
+}
