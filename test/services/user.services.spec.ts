@@ -3,6 +3,7 @@ import { SinonStub, stub } from "sinon";
 import UserServices, { IUserServices } from "./../../src/services/user.services"
 import UserRepository from "../../src/repositories/user.repository";
 import UserModel, { UserAttributes } from "./../../src/models/user.model";
+import { func } from "joi";
 
 describe("User Services Test", function () {
 
@@ -63,5 +64,24 @@ describe("User Services Test", function () {
         it("create model is called with valid args", function () {
             expect(createUserStub.calledWith(userData));
         })
+    })
+
+    describe("get user 'findOne'", function () {
+        it("should return null if user not exist", async function () {
+            const findUserStub = stub(userRepository, "findOne").resolves(null)
+
+            const user = await userServices.findOne({ id: 1 })
+
+            expect(user).to.be.equal(null)
+
+            expect(findUserStub.calledOnce).to.be.true;
+
+            expect(findUserStub.calledWith({
+                ...userData
+            }))
+
+            findUserStub.restore()
+        })
+
     })
 })

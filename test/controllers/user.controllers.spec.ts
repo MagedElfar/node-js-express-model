@@ -1,5 +1,5 @@
 import { expect } from "chai";
-import { stub, assert, SinonStub } from "sinon";
+import { spy, stub, assert, SinonStub } from "sinon";
 import { UserController } from "./../../src/controllers/user.controllers";
 import UserServices from "./../../src/services/user.services";
 import UserRepository from "../../src/repositories/user.repository";
@@ -74,5 +74,14 @@ describe("UserController", function () {
             findUserByIdStub.restore()
 
         });
+
+
+        it("check is service method called with right args", async function () {
+            const findUserByIdStub = stub(userServices, "findUserById").resolves(userData);
+
+            await userController.getUserByIdHandler(req, res, next)
+
+            expect(findUserByIdStub.calledWith(userData.id)).to.be.true
+        })
     })
 });

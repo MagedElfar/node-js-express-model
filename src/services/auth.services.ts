@@ -68,5 +68,4 @@ export default class AuthServices implements IAuthServices {
             throw error
         }
     }
-
 }
