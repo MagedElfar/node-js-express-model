@@ -13,6 +13,11 @@ interface IConfig {
     jwt: {
         secret: string,
         expire: string
+    },
+
+    email: {
+        user: string,
+        password: string
     }
 }
 
@@ -38,6 +43,11 @@ class Config {
             jwt: {
                 secret: process.env.JWT_SECRET!,
                 expire: process.env.JWT_EXPIRE!
+            },
+
+            email: {
+                user: process.env.GOOGLE_USER!,
+                password: process.env.GOOGLE_PASSWORD!,
             }
         }
     }

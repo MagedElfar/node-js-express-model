@@ -6,3 +6,8 @@ export class LoginDto {
     email: string;
     password: string
 }
+
+export class RestPasswordDto {
+    password: string;
+    token: string
+}

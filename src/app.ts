@@ -7,7 +7,8 @@ import { errorHandler } from "./middlewares/errorHandler.middleware";
 import { Logger } from "./utility/logger";
 import swaggerSpec from "./swagger";
 import swaggerUi from 'swagger-ui-express';
-import * as path from "path"
+import * as path from "path";
+
 
 
 class App {
@@ -26,8 +27,8 @@ class App {
         const middlewares: any[] = [
             cors(),
             morgan("short"),
-            express.json(),
-            express.urlencoded({ extended: false }),
+            express.json({ limit: "10mb" }),
+            express.urlencoded({ limit: "10mb", extended: true }),
         ];
 
         middlewares.forEach((middleware) => this.app.use(middleware));
@@ -72,9 +73,11 @@ class App {
 
         process.on("uncaughtException", (err: any) => {
             logger.error("error ocurred", null, err)
+            process.exit()
         })
         process.on("unhandledRejection", (err: any) => {
             logger.error("error ocurred", null, err)
+            process.exit()
         })
 
         this.app.listen(port, () => {

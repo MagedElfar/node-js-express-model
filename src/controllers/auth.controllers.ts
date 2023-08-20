@@ -46,4 +46,35 @@ export class AuthController {
 
     }
 
+    async restPasswordEmailHandler(req: Request, res: Response, next: NextFunction) {
+
+        try {
+
+            await this.authServices.restPasswordEmail(req.body.email)
+
+            sendResponse(res, {}, 200)
+
+        } catch (error) {
+            next(error)
+        }
+
+    }
+
+    async restPasswordHandler(req: Request, res: Response, next: NextFunction) {
+
+        try {
+
+            await this.authServices.restPassword({
+                password: req.body.password,
+                token: req.params.token
+            })
+
+            sendResponse(res, {}, 200)
+
+        } catch (error) {
+            next(error)
+        }
+
+    }
+
 }

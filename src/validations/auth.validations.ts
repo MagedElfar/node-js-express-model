@@ -41,9 +41,26 @@ const loginSchema = Joi.object({
         })
 })
 
+const restPasswordEmailSchema = Joi.object({
+    email: Joi.string()
+        .email()
+        .required()
+        .messages({
+            "any.required": "Email is required"
+        })
+})
 
+const restPasswordSchema = Joi.object({
+    password: Joi.string()
+        .required()
+        // .regex(/^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*\W)(?!.* ).{8,16}$/)
+        .min(8)
+        .max(16),
+})
 
 export {
     signupSchema,
-    loginSchema
+    loginSchema,
+    restPasswordEmailSchema,
+    restPasswordSchema
 }

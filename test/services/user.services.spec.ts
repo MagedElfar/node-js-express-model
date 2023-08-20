@@ -82,6 +82,5 @@ describe("User Services Test", function () {
 
             findUserStub.restore()
         })
-
     })
 })

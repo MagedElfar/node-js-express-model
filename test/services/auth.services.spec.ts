@@ -6,11 +6,13 @@ import JwtServices, { IJwtServices } from '../../src/services/jwt.services';
 import { expect } from 'chai';
 import { LoginDto, SignupDto } from '../../src/dto/auth.dto';
 import bcrypt from "bcrypt";
+import NodeMailerServices, { IEmailServices } from '../../src/services/email.services';
 
 describe("Auth Services", function () {
     let authServices: IAuthServices;
     let userService: IUserServices;
     let jwtServices: IJwtServices;
+    let emailServices: IEmailServices
 
     const userData: UserAttributes = {
         id: 1,
@@ -22,10 +24,13 @@ describe("Auth Services", function () {
     beforeEach(function () {
         userService = new UserServices(new UserRepository());
         jwtServices = new JwtServices()
+        emailServices = new NodeMailerServices()
+
 
         authServices = new AuthServices(
             userService,
-            jwtServices
+            jwtServices,
+            emailServices
         );
 
     })
@@ -175,6 +180,51 @@ describe("Auth Services", function () {
             }
 
 
+        })
+    })
+
+    describe("send rest password email method", function () {
+        let findOneUserStub: SinonStub;
+        let createTokenStub: SinonStub;
+        let sendEmailStub: SinonStub
+
+        const loginDto: LoginDto = {
+            password: userData.password,
+            email: userData.email
+        }
+
+        beforeEach(function () {
+            findOneUserStub = stub(userService, "findOne");
+            createTokenStub = stub(jwtServices, "createToken").returns("JWT Token");
+            sendEmailStub = stub(emailServices, "send")
+        })
+
+        afterEach(function () {
+            findOneUserStub.restore();
+            createTokenStub.restore();
+            sendEmailStub.restore()
+        });
+
+
+        it("should not email send if user email not exist", async function () {
+            findOneUserStub.resolves(null);
+
+            try {
+                await authServices.restPasswordEmail(userData.email)
+            } catch (error) {
+                expect(findOneUserStub.calledOnce).to.be.true
+                expect(sendEmailStub.notCalled).to.be.true
+                expect(createTokenStub.notCalled).to.be.true
+                expect(error.status).to.be.equal(404)
+            }
+        })
+
+        it("should email send if user email exist", async function () {
+            findOneUserStub.resolves(userData);
+            await authServices.restPasswordEmail(userData.email)
+            expect(findOneUserStub.calledOnce).to.be.true
+            expect(sendEmailStub.calledOnce).to.be.true
+            expect(createTokenStub.calledOnce).to.be.true
         })
     })
 })

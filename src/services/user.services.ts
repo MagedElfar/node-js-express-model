@@ -1,4 +1,4 @@
-import { CreateUserDto } from "../dto/user.dto";
+import { CreateUserDto, UpdateUserDto } from "../dto/user.dto";
 import User, { UserAttributes } from "../models/user.model";
 import UserRepository from "../repositories/user.repository";
 import { setError } from "../utility/error-format";
@@ -7,6 +7,7 @@ export interface IUserServices {
     createUser(createUserDto: CreateUserDto): Promise<UserAttributes>;
     findUserById(id: number): Promise<UserAttributes | null>;
     findOne(data: Partial<UserAttributes>): Promise<UserAttributes | null>;
+    updateOne(id: number, updateUserDto: UpdateUserDto): Promise<UserAttributes | null>;
     deleteUser(id: number): Promise<void>;
 }
 
@@ -50,6 +51,14 @@ export default class UserServices implements IUserServices {
 
             return user.dataValues
 
+        } catch (error) {
+            throw error
+        }
+    }
+
+    async updateOne(id: number, updateUserDto: UpdateUserDto) {
+        try {
+            return await this.userRepository.update(id, updateUserDto)
         } catch (error) {
             throw error
         }
