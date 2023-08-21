@@ -47,6 +47,22 @@ export class UserController {
 
     }
 
+    async updateUserHandler(req: Request, res: Response, next: NextFunction) {
+
+        try {
+
+            const user = await this.userServices.updateUser(+req.params.id!, req.body)
+
+            sendResponse(res, {
+                user
+            }, 200)
+
+        } catch (error) {
+            next(error)
+        }
+
+    }
+
     async deleteUserHandler(req: Request, res: Response, next: NextFunction) {
 
         try {

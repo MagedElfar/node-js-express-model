@@ -53,7 +53,6 @@ const restPasswordEmailSchema = Joi.object({
 const restPasswordSchema = Joi.object({
     password: Joi.string()
         .required()
-        // .regex(/^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*\W)(?!.* ).{8,16}$/)
         .min(8)
         .max(16),
 })

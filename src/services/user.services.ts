@@ -8,6 +8,7 @@ export interface IUserServices {
     findUserById(id: number): Promise<UserAttributes | null>;
     findOne(data: Partial<UserAttributes>): Promise<UserAttributes | null>;
     updateOne(id: number, updateUserDto: UpdateUserDto): Promise<UserAttributes | null>;
+    updateUser(id: number, updateUserDto: UpdateUserDto): Promise<UserAttributes | null>
     deleteUser(id: number): Promise<void>;
 }
 
@@ -51,6 +52,22 @@ export default class UserServices implements IUserServices {
 
             return user.dataValues
 
+        } catch (error) {
+            throw error
+        }
+    }
+
+    async updateUser(id: number, updateUserDto: UpdateUserDto) {
+        try {
+            const user = await this.findUserById(id);
+
+            if (!user) throw setError(404, "user not exist")
+
+            const userEmail = await this.findOne({ email: updateUserDto.email })
+
+            if (userEmail && (userEmail.id !== id)) throw setError(400, "email is already exist")
+
+            return await this.updateOne(id, updateUserDto)
         } catch (error) {
             throw error
         }

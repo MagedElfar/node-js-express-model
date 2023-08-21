@@ -129,6 +129,116 @@ const authPath = {
             },
         },
     },
+    '/auth/rest-password': {
+        post: {
+            tags: ['Authentication'],
+            summary: 'send rest password link to user email',
+            security: [],
+            requestBody: {
+                required: true,
+                content: {
+                    'application/json': {
+                        schema: {
+                            type: 'object',
+                            properties: {
+                                email: {
+                                    type: 'string',
+                                    description: 'The email address of the user.',
+                                },
+                            },
+                            required: ['email'],
+                        },
+                    },
+                },
+            },
+            responses: {
+                '200': {
+                    description: 'success',
+                    content: {
+                        'application/json': {
+                            schema: {
+                                type: 'object',
+                                properties: {
+                                    type: { type: 'string' },
+                                },
+                            },
+                        }
+                    }
+                },
+                '400': {
+                    description: 'Bad Request',
+                },
+                '404': {
+                    description: "doesn't user match this email",
+                },
+                '500': {
+                    description: 'Internal Server Error',
+                }
+            },
+        },
+    },
+    '/auth/rest-password/{token}': {
+        post: {
+            tags: ['Authentication'],
+            summary: 'rest user password',
+            security: [],
+            parameters: [
+                {
+                    in: 'path',
+                    name: 'token',
+                    required: true,
+                    description: 'rest password token sent to user email',
+                    schema: {
+                        type: 'string',
+                    },
+                },
+            ],
+            requestBody: {
+                required: true,
+                content: {
+                    'application/json': {
+                        schema: {
+                            type: 'object',
+                            properties: {
+                                password: {
+                                    type: 'string',
+                                    description: 'new user password.',
+                                },
+                            },
+                            required: ['email'],
+                        },
+                    },
+                },
+            },
+            responses: {
+                '200': {
+                    description: 'success',
+                    content: {
+                        'application/json': {
+                            schema: {
+                                type: 'object',
+                                properties: {
+                                    type: { type: 'string' },
+                                },
+                            },
+                        }
+                    }
+                },
+                '400': {
+                    description: 'Bad Request',
+                },
+                '403': {
+                    description: 'Invalid or Expire Token',
+                },
+                '404': {
+                    description: "doesn't user match this email",
+                },
+                '500': {
+                    description: 'Internal Server Error',
+                }
+            },
+        },
+    },
 }
 
 export default authPath

@@ -40,8 +40,11 @@ export class Logger implements ILogger {
             format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
             format.printf(({ timestamp, level, message, data }) => {
                 const endpoint = data && data.endpoint ? ` [${data.endpoint}]` : '';
+                const method = data && data.method ? ` ${data.method}` : '';
                 const logData = data && data.logData ? ` ${JSON.stringify(data.logData, null, 2)}` : '';
-                return `[${timestamp}] ${level}:${endpoint} ${message}${logData}`;
+                // return `[${timestamp}] ${level}:${endpoint} ${message}${logData}`;
+                return `[${timestamp}] ${level}:${endpoint}${method} ${message}${logData}`;
+
             })
         );
 
@@ -77,8 +80,12 @@ export class Logger implements ILogger {
         this.logger.info(message, { data });
     }
 
-    public error(message: string, req: Request | null = null, error?: any) {
-        const data = req ? { endpoint: req.originalUrl, logData: { error } } : { logData: { error } };
+    public error(message: string, req: Request | null = null, errorData?: any) {
+        const data = req ? {
+            endpoint: req.originalUrl,
+            logData: { errorData },
+            method: req.method
+        } : { logData: { errorData } };
         this.logger.error(message, { data });
     }
 }

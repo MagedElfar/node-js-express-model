@@ -1,18 +1,20 @@
 import AuthServices, { IAuthServices } from './../../src/services/auth.services';
 import UserRepository from "../../src/repositories/user.repository";
 import UserServices, { IUserServices } from "../../src/services/user.services"
-import { SinonStub, stub } from "sinon";
+import { SinonStub, stub, mock } from "sinon";
 import JwtServices, { IJwtServices } from '../../src/services/jwt.services';
 import { expect } from 'chai';
 import { LoginDto, SignupDto } from '../../src/dto/auth.dto';
 import bcrypt from "bcrypt";
 import NodeMailerServices, { IEmailServices } from '../../src/services/email.services';
+import { ILogger, Logger } from '../../src/utility/logger';
 
 describe("Auth Services", function () {
     let authServices: IAuthServices;
     let userService: IUserServices;
     let jwtServices: IJwtServices;
-    let emailServices: IEmailServices
+    let emailServices: IEmailServices;
+    let logger: ILogger
 
     const userData: UserAttributes = {
         id: 1,
@@ -25,12 +27,14 @@ describe("Auth Services", function () {
         userService = new UserServices(new UserRepository());
         jwtServices = new JwtServices()
         emailServices = new NodeMailerServices()
+        logger = new Logger()
 
 
         authServices = new AuthServices(
             userService,
             jwtServices,
-            emailServices
+            emailServices,
+            logger
         );
 
     })
@@ -195,7 +199,7 @@ describe("Auth Services", function () {
 
         beforeEach(function () {
             findOneUserStub = stub(userService, "findOne");
-            createTokenStub = stub(jwtServices, "createToken").returns("JWT Token");
+            createTokenStub = stub(jwtServices, "createToken").returns("JWT-Token");
             sendEmailStub = stub(emailServices, "send")
         })
 
@@ -216,6 +220,7 @@ describe("Auth Services", function () {
                 expect(sendEmailStub.notCalled).to.be.true
                 expect(createTokenStub.notCalled).to.be.true
                 expect(error.status).to.be.equal(404)
+                expect(error.message).to.be.equal("doesn't user match this email")
             }
         })
 
@@ -225,6 +230,79 @@ describe("Auth Services", function () {
             expect(findOneUserStub.calledOnce).to.be.true
             expect(sendEmailStub.calledOnce).to.be.true
             expect(createTokenStub.calledOnce).to.be.true
+            expect(createTokenStub.calledWith({ id: userData.id }, "15m")).to.be.true;
+            expect(sendEmailStub.calledWith({
+                to: userData.email,
+                subject: "Forget Password",
+                html: `
+                <h3>Please click on the link blow to rest your password</h3>
+                <a href = "/forgot-password?token=JWT-Token">Rest Password</a>
+            `
+            })).to.be.true
+        })
+    })
+
+    describe("rest password method", function () {
+        let updateUserStub: SinonStub;
+        let findUserStub: SinonStub;
+        let hashedPasswordStub: SinonStub;
+        let jwtVerify: SinonStub;
+
+        beforeEach(function () {
+            updateUserStub = stub(userService, "updateOne")
+            findUserStub = stub(userService, "findUserById")
+            hashedPasswordStub = stub(bcrypt, "hash").resolves("hashed password")
+            jwtVerify = stub(jwtServices, "verifyToken")
+        })
+
+        afterEach(function () {
+            updateUserStub.restore();
+            findUserStub.restore()
+            hashedPasswordStub.restore();
+            jwtVerify.restore()
+        })
+
+        it("should update password if token is valid", async function () {
+
+            findUserStub.resolves(userData)
+
+            updateUserStub.resolves({
+                ...userData,
+                password: "hashed password"
+            })
+
+            jwtVerify.returns({ id: userData.id });
+
+            const loggerMock = mock(logger).expects("info")
+
+
+            const user = await authServices.restPassword({
+                password: userData.password,
+                token: "token"
+            })
+
+            loggerMock.verify()
+
+            expect(updateUserStub.calledWith(userData.id, { password: "hashed password" })).to.be.true
+            expect(user).to.deep.equal({
+                ...userData,
+                password: "hashed password"
+            })
+            expect(user?.password).to.be.equal("hashed password")
+        })
+
+        it("should throw error if token is invalid", async function () {
+            jwtVerify.throws({ status: 403, message: "Invalid or ExpireToken" });
+
+            try {
+                const user = await authServices.restPassword({
+                    token: "invalid token",
+                    password: "123456789"
+                })
+            } catch (error) {
+                expect(error.status).to.be.equal(403)
+                expect(updateUserStub.notCalled).to.be.true
+            }
         })
     })
 })

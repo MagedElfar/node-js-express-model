@@ -1,3 +1,4 @@
+import { UpdateUserDto } from './../../src/dto/user.dto';
 import { expect } from "chai";
 import { SinonStub, stub } from "sinon";
 import UserServices, { IUserServices } from "./../../src/services/user.services"
@@ -83,4 +84,77 @@ describe("User Services Test", function () {
             findUserStub.restore()
         })
     })
+
+    describe("update user method", function () {
+        let findUserByIdStub: SinonStub;
+        let findOneStub: SinonStub;
+        let updateStub: SinonStub;
+
+        beforeEach(function () {
+            findUserByIdStub = stub(userServices, "findUserById")
+            findOneStub = stub(userServices, "findOne")
+            updateStub = stub(userServices, "updateOne")
+        })
+
+        afterEach(function () {
+            findUserByIdStub.restore()
+            findOneStub.restore()
+            updateStub.restore()
+        })
+
+
+        it("it should throw user not found error if user id not exist", async function () {
+            findUserByIdStub.resolves(null);
+
+            try {
+                await userServices.updateUser(userData.id, userData)
+            } catch (error) {
+                expect(updateStub.notCalled).to.be.true
+                expect(findOneStub.notCalled).to.be.true
+                expect(error.status).to.be.equal(404)
+            }
+        })
+
+        it("it should throw user not found error if email for other user", async function () {
+            findUserByIdStub.resolves(userData);
+            findOneStub.resolves({
+                id: 2,
+                name: "maged",
+                email: "m@mail.com",
+                password: "123456789"
+            })
+            try {
+                await userServices.updateUser(userData.id, userData)
+            } catch (error) {
+                expect(findUserByIdStub.calledOnce).to.true
+                expect(updateStub.notCalled).to.be.true
+                expect(findOneStub.calledOnce).to.be.true
+                expect(error.status).to.be.equal(400)
+            }
+        })
+
+        it("it should return update user data", async function () {
+            findUserByIdStub.resolves(userData);
+            findOneStub.resolves(userData)
+
+            const updateUserDto: UpdateUserDto = {
+                email: "test@mail.com",
+                name: "test nsme"
+            }
+
+            updateStub.resolves({
+                ...userData,
+                ...updateUserDto
+            })
+
+            const user = await userServices.updateUser(userData.id, updateUserDto);
+
+            expect(user).to.deep.equal({
+                ...userData,
+                ...updateUserDto
+            })
+
+        })
+    })
+
 })

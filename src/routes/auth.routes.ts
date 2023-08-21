@@ -7,6 +7,7 @@ import { Router } from "express";
 import * as authValidations from "./../validations/auth.validations";
 import validation from "./../middlewares/validation.middleware"
 import NodeMailerServices from '../services/email.services';
+import { Logger } from '../utility/logger';
 
 const router = Router();
 
@@ -14,7 +15,8 @@ const authController = new AuthController(
     new AuthServices(
         new UserServices(new UserRepository()),
         new JwtServices(),
-        new NodeMailerServices()
+        new NodeMailerServices(),
+        new Logger()
     )
 );
 

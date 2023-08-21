@@ -4,6 +4,7 @@ export class CreateUserDto {
     password: string
 }
 
+
 export class UpdateUserDto {
     name?: string;
     email?: string;
