@@ -1,18 +1,22 @@
 import AuthServices, { IAuthServices } from './../../src/services/auth.services';
 import UserRepository from "../../src/repositories/user.repository";
 import UserServices, { IUserServices } from "../../src/services/user.services"
-import { SinonStub, stub, mock } from "sinon";
+import { SinonStub, stub, mock, SinonMock, SinonExpectation } from "sinon";
 import JwtServices, { IJwtServices } from '../../src/services/jwt.services';
 import { expect } from 'chai';
 import { LoginDto, SignupDto } from '../../src/dto/auth.dto';
 import bcrypt from "bcrypt";
 import NodeMailerServices, { IEmailServices } from '../../src/services/email.services';
 import { ILogger, Logger } from '../../src/utility/logger';
+import RefreshTokenServices, { IRefreshTokenServices } from '../../src/services/refreshTokwn.services';
+import RefreshTokenRepository from '../../src/repositories/refreshToken.repository';
+import { RefreshTokenAttributes } from '../../src/models/refreshToken.model';
 
 describe("Auth Services", function () {
     let authServices: IAuthServices;
     let userService: IUserServices;
     let jwtServices: IJwtServices;
+    let refreshTokenServices: IRefreshTokenServices;
     let emailServices: IEmailServices;
     let logger: ILogger
 
@@ -26,6 +30,10 @@ describe("Auth Services", function () {
     beforeEach(function () {
         userService = new UserServices(new UserRepository());
         jwtServices = new JwtServices()
+        refreshTokenServices = new RefreshTokenServices(
+            new RefreshTokenRepository(),
+            new JwtServices()
+        )
         emailServices = new NodeMailerServices()
         logger = new Logger()
 
@@ -33,6 +41,7 @@ describe("Auth Services", function () {
         authServices = new AuthServices(
             userService,
             jwtServices,
+            refreshTokenServices,
             emailServices,
             logger
         );
@@ -43,6 +52,7 @@ describe("Auth Services", function () {
         let createTokenStub: SinonStub;
         let hashedPasswordStub: SinonStub;
         let createUserStub: SinonStub
+        let createRefreshTokenStub: SinonStub
 
         const signupDto: SignupDto = {
             name: "maged",
@@ -58,30 +68,35 @@ describe("Auth Services", function () {
             });
 
             createTokenStub = stub(jwtServices, "createToken").returns("jwt token");
-            hashedPasswordStub = stub(bcrypt, "hash").resolves("hashedPassword")
+            hashedPasswordStub = stub(bcrypt, "hash").resolves("hashedPassword");
+            createRefreshTokenStub = stub(refreshTokenServices, "createToken").resolves({
+                id: 1,
+                userId: 1,
+                token: "encrypted refresh token"
+            })
         });
 
         afterEach(function () {
             createUserStub.restore()
             createTokenStub.restore();
             hashedPasswordStub.restore();
+            createRefreshTokenStub.restore()
         })
 
         it("should return new user with access token if email is new", async function () {
 
-
             const findOneStub = stub(userService, "findOne").resolves(null);
+            const signupData = await authServices.signup(signupDto);
 
+            expect(signupData).to.deep.equal({
+                user: {
+                    id: 1,
+                    ...signupDto
+                },
+                accessToken: "jwt token",
+                refreshToken: "encrypted refresh token"
 
-
-            const signupData = await authServices.signup(signupDto)
-
-            expect(signupData.user).to.deep.equal({
-                id: 1,
-                ...signupDto
             });
-
-            expect(signupData.accessToken).to.be.equal("jwt token");
             expect(createUserStub.calledOnce).to.be.true
             expect(findOneStub.calledOnce).to.be.true
 
@@ -120,7 +135,8 @@ describe("Auth Services", function () {
     describe("login method", function () {
         let findOneUserStub: SinonStub;
         let createTokenStub: SinonStub;
-        let hashedPasswordStub: SinonStub
+        let hashedPasswordStub: SinonStub;
+        let createRefreshTokenStub: SinonStub
 
         const loginDto: LoginDto = {
             password: userData.password,
@@ -131,12 +147,18 @@ describe("Auth Services", function () {
             findOneUserStub = stub(userService, "findOne");
             createTokenStub = stub(jwtServices, "createToken").returns("JWT Token");
             hashedPasswordStub = stub(bcrypt, "compare")
+            createRefreshTokenStub = stub(refreshTokenServices, "createToken").resolves({
+                id: 1,
+                userId: 1,
+                token: "encrypted refresh token"
+            })
         })
 
         afterEach(function () {
             findOneUserStub.restore();
             createTokenStub.restore();
-            hashedPasswordStub.restore()
+            hashedPasswordStub.restore();
+            createRefreshTokenStub.restore()
         });
 
 
@@ -146,8 +168,12 @@ describe("Auth Services", function () {
 
             const login = await authServices.login(loginDto);
 
-            expect(login.user).to.deep.equal(userData);
-            expect(login.accessToken).to.be.equal("JWT Token")
+            expect(login).to.deep.equal({
+                user: userData,
+                accessToken: "JWT Token",
+                refreshToken: "encrypted refresh token"
+
+            });
             expect(createTokenStub.calledOnce).to.be.true;
             expect(hashedPasswordStub.calledOnce).to.be.true;
             expect(findOneUserStub.calledOnce).to.be.true
@@ -303,6 +329,111 @@ describe("Auth Services", function () {
                 expect(error.status).to.be.equal(403)
                 expect(updateUserStub.notCalled).to.be.true
             }
+        })
+    })
+
+    describe("refresh token method", function () {
+        let refreshTokenFindOne: SinonStub;
+        let jwtVerifyTokenStub: SinonStub;
+        let jwtCreateTokenStub: SinonStub;
+
+        const refreshToken: RefreshTokenAttributes = {
+            id: 1,
+            userId: 1,
+            token: "refresh token"
+        }
+
+        beforeEach(function () {
+            refreshTokenFindOne = stub(refreshTokenServices, "findOne");
+            jwtVerifyTokenStub = stub(jwtServices, "verifyToken");
+            jwtCreateTokenStub = stub(jwtServices, "createToken").returns("jwt token")
+        })
+
+        afterEach(function () {
+            refreshTokenFindOne.restore();
+            jwtCreateTokenStub.restore();
+            jwtVerifyTokenStub.restore()
+        })
+
+        it("should return new access token if refresh token valid", async function () {
+
+            refreshTokenFindOne.resolves(refreshToken);
+            jwtVerifyTokenStub.returns({ id: refreshToken.userId });
+
+            const token = await authServices.refreshToken(refreshToken.token);
+
+            expect(token).to.be.equal("jwt token");
+            expect(jwtVerifyTokenStub.calledOnce).to.be.equal
+            expect(jwtCreateTokenStub.calledOnce).to.be.equal
+        })
+
+        it("should throw error if refresh token not exist in db", async function () {
+
+            refreshTokenFindOne.resolves(null);
+
+            try {
+                const token = await authServices.refreshToken(refreshToken.token);
+            } catch (error) {
+                expect(error.status).to.be.equal(401)
+                expect(error.message).to.be.equal("Authentication failed. Token is invalid or expired.")
+                expect(jwtVerifyTokenStub.notCalled).to.be.true
+                expect(jwtCreateTokenStub.notCalled).to.be.true
+            }
+
+        })
+
+        it("should throw error if refresh token not valid", async function () {
+
+            refreshTokenFindOne.resolves(refreshToken);
+            jwtVerifyTokenStub.returns(null)
+
+            try {
+                const token = await authServices.refreshToken(refreshToken.token);
+            } catch (error) {
+                expect(error.status).to.be.equal(401)
+                expect(error.message).to.be.equal("Authentication failed. Token is invalid or expired.")
+                expect(jwtVerifyTokenStub.calledOnce).to.be.true
+                expect(jwtCreateTokenStub.notCalled).to.be.true
+            }
+
+        })
+    })
+
+    describe("logout method", function () {
+        let refreshTokenFindOneStub: SinonStub;
+        let refreshTokenDeleteOneMock: SinonExpectation;
+
+        const refreshToken: RefreshTokenAttributes = {
+            id: 1,
+            userId: 1,
+            token: "refresh token"
+        }
+
+        beforeEach(function () {
+            refreshTokenFindOneStub = stub(refreshTokenServices, "findOne");
+            refreshTokenDeleteOneMock = mock(refreshTokenServices).expects("deleteOne")
+        })
+
+        afterEach(function () {
+            refreshTokenFindOneStub.restore()
+        })
+
+        it("should call delete refresh token method if token exist in DB", async function () {
+            refreshTokenFindOneStub.resolves(refreshToken);
+
+            await authServices.logout(refreshToken.token);
+
+            expect(refreshTokenDeleteOneMock.calledOnce).to.be.true
+
+            refreshTokenDeleteOneMock.verify();
+        })
+
+        it("shouldn't call delete refresh token method if token exist in DB", async function () {
+            refreshTokenFindOneStub.resolves(null);
+
+            await authServices.logout(refreshToken.token);
+
+            expect(refreshTokenDeleteOneMock.notCalled).to.be.true
         })
     })
 })

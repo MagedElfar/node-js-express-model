@@ -1,13 +1,12 @@
 import config from "../config";
 import jwt, { verify } from "jsonwebtoken";
-import { setError } from "../utility/error-format";
 import { Logger } from "../utility/logger";
 
 interface ITokenPayload { id: number };
 
 export interface IJwtServices {
     createToken(payload: ITokenPayload, expiresIn: string): string;
-    verifyToken(token: string, code: number): any
+    verifyToken(token: string): any
 }
 
 export default class JwtServices implements IJwtServices {
@@ -23,7 +22,7 @@ export default class JwtServices implements IJwtServices {
         return jwt.sign(payload, this.secret, { expiresIn })
     }
 
-    verifyToken(token: string, code: number): any {
+    verifyToken(token: string): any {
 
         const logger = new Logger()
 
@@ -39,9 +38,10 @@ export default class JwtServices implements IJwtServices {
 
                 data = decodedData
             });
+
             if (error) {
                 logger.error("Jwt error:", null, error)
-                throw (setError(code, "Invalid or ExpireToken"));
+                return null
             }
 
             return data

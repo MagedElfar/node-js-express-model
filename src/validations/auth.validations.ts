@@ -57,9 +57,15 @@ const restPasswordSchema = Joi.object({
         .max(16),
 })
 
+const refreshTokenSchema = Joi.object({
+    token: Joi.string()
+        .required()
+})
+
 export {
     signupSchema,
     loginSchema,
     restPasswordEmailSchema,
-    restPasswordSchema
+    restPasswordSchema,
+    refreshTokenSchema
 }

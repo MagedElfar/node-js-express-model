@@ -46,6 +46,37 @@ export class AuthController {
 
     }
 
+    async logoutHandler(req: Request, res: Response, next: NextFunction) {
+
+        try {
+
+            await this.authServices.logout(req.body.token)
+
+            sendResponse(res, {}, 200)
+
+        } catch (error) {
+            next(error)
+        }
+
+    }
+
+    async refreshTokenHandler(req: Request, res: Response, next: NextFunction) {
+
+        try {
+
+            const accessToken = await this.authServices.refreshToken(req.body.token)
+
+            sendResponse(res, {
+                accessToken
+            }, 200)
+
+        } catch (error) {
+            next(error)
+        }
+
+    }
+
+
     async restPasswordEmailHandler(req: Request, res: Response, next: NextFunction) {
 
         try {

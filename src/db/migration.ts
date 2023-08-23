@@ -3,6 +3,7 @@ import Product from "../models/product.model";
 import User from "../models/user.model";
 import { ModelStatic, QueryInterface } from "sequelize";
 import DatabaseConfig from "./../db"
+import RefreshToken from "../models/refreshToken.model";
 
 // Get the existing indexes for the model from the database
 async function getExistingIndexes(queryInterface: QueryInterface, tableName: string): Promise<any> {
@@ -16,6 +17,15 @@ async function getExistingIndexes(queryInterface: QueryInterface, tableName: str
 
 // Remove non-primary indexes from the database
 async function removeIndexes(queryInterface: QueryInterface, tableName: string) {
+
+    const tableExists = await queryInterface.showAllTables().then(tables => tables.includes(tableName));
+
+    if (!tableExists) {
+        console.log(`Table ${tableName} does not exist.`);
+        return;
+    }
+
+
     const indexes = await getExistingIndexes(queryInterface, tableName);
 
     await Promise.all(indexes.map(
@@ -38,6 +48,7 @@ async function migration(models: ModelStatic<any>[]) {
         await Promise.all(models.map(async (model) => {
             const table = model.tableName;
             try {
+
                 await removeIndexes(queryInterface, table)
                 await model.sync({ alter: true });
                 console.log(`${table} table created successfully!`)
@@ -56,5 +67,6 @@ async function migration(models: ModelStatic<any>[]) {
 
 migration([
     User,
-    Product
+    Product,
+    RefreshToken
 ])

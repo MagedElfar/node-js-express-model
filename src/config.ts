@@ -5,7 +5,8 @@ dotenv.config()
 
 interface IConfig {
     server: {
-        port: number
+        port: number,
+        encryptionKey: string
     };
 
     db: IDatabaseConfigOptions,
@@ -28,7 +29,8 @@ class Config {
     private constructor() {
         this.configuration = {
             server: {
-                port: parseInt(process.env.PORT || "5000")
+                port: parseInt(process.env.PORT || "5000"),
+                encryptionKey: process.env.ENCRYPTION_KEY!
             },
 
             db: {

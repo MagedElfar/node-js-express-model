@@ -129,6 +129,102 @@ const authPath = {
             },
         },
     },
+    '/auth/logout': {
+        post: {
+            tags: ['Authentication'],
+            summary: 'User Logout',
+            requestBody: {
+                required: true,
+                content: {
+                    'application/json': {
+                        schema: {
+                            type: 'object',
+                            properties: {
+                                token: {
+                                    type: 'string',
+                                    description: 'refresh token is generated with login or signup.',
+                                },
+                            },
+                            required: ['token'],
+                        },
+                    },
+                },
+            },
+            responses: {
+                '200': {
+                    description: 'login successful',
+                    content: {
+                        'application/json': {
+                            schema: {
+                                type: 'object',
+                                properties: {
+                                    type: { type: 'string' },
+                                },
+                            },
+                        }
+                    }
+                },
+                '400': {
+                    description: 'Bad Request',
+                },
+                '401': {
+                    description: 'Authentication failed. Token is invalid or expired.',
+                },
+                '500': {
+                    description: 'Internal Server Error',
+                }
+            },
+        },
+    },
+    '/auth/refresh-token': {
+        post: {
+            tags: ['Authentication'],
+            summary: 'generate a new access token from refresh token',
+            security: [],
+            requestBody: {
+                required: true,
+                content: {
+                    'application/json': {
+                        schema: {
+                            type: 'object',
+                            properties: {
+                                token: {
+                                    type: 'string',
+                                    description: 'refresh token is generated with login or signup.',
+                                },
+                            },
+                            required: ['token'],
+                        },
+                    },
+                },
+            },
+            responses: {
+                '200': {
+                    description: 'login successful',
+                    content: {
+                        'application/json': {
+                            schema: {
+                                type: 'object',
+                                properties: {
+                                    type: { type: 'string' },
+                                    accessToken: { type: "string" }
+                                },
+                            },
+                        }
+                    }
+                },
+                '400': {
+                    description: 'Bad Request',
+                },
+                '401': {
+                    description: 'Authentication failed. Token is invalid or expired.',
+                },
+                '500': {
+                    description: 'Internal Server Error',
+                }
+            },
+        },
+    },
     '/auth/rest-password': {
         post: {
             tags: ['Authentication'],
