@@ -1,7 +1,7 @@
 import AuthServices, { IAuthServices } from './../../src/services/auth.services';
 import UserRepository from "../../src/repositories/user.repository";
 import UserServices, { IUserServices } from "../../src/services/user.services"
-import { SinonStub, stub, mock, SinonMock, SinonExpectation } from "sinon";
+import { SinonStub, stub, mock, SinonExpectation } from "sinon";
 import JwtServices, { IJwtServices } from '../../src/services/jwt.services';
 import { expect } from 'chai';
 import { LoginDto, SignupDto } from '../../src/dto/auth.dto';
@@ -11,6 +11,7 @@ import { ILogger, Logger } from '../../src/utility/logger';
 import RefreshTokenServices, { IRefreshTokenServices } from '../../src/services/refreshTokwn.services';
 import RefreshTokenRepository from '../../src/repositories/refreshToken.repository';
 import { RefreshTokenAttributes } from '../../src/models/refreshToken.model';
+import { UserAttributes } from '../../src/models/user.model';
 
 describe("Auth Services", function () {
     let authServices: IAuthServices;
