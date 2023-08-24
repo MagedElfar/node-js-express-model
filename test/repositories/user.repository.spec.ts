@@ -34,11 +34,7 @@ describe("User Repository", function () {
 
 
         it("should create new user", function () {
-            expect(user.dataValues).to.be.equal(dataValues)
-        });
-
-        it(`user email should be ${dataValues.email}`, function () {
-            expect(user.dataValues.email).to.be.equal(dataValues.email)
+            expect(user).to.deep.equal(dataValues)
         });
 
         it("model function should calls one", function () {

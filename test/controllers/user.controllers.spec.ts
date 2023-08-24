@@ -1,13 +1,15 @@
 import { expect } from "chai";
-import { spy, stub, assert, SinonStub } from "sinon";
+import { stub, assert, SinonStub } from "sinon";
 import { UserController } from "./../../src/controllers/user.controllers";
 import UserServices from "./../../src/services/user.services";
 import UserRepository from "../../src/repositories/user.repository";
 import { NextFunction, Request, Response } from "express"
+import { ILogger, Logger } from "../../src/utility/logger";
 
 describe("UserController", function () {
     let userController: UserController;
     let userServices: UserServices;
+    let logger: ILogger
 
     const userData = {
         id: 1,
@@ -18,8 +20,8 @@ describe("UserController", function () {
 
     beforeEach(function () {
         userServices = new UserServices(new UserRepository());
-
-        userController = new UserController(userServices);
+        logger = new Logger()
+        userController = new UserController(userServices, logger);
     });
 
     describe("Get User By ID", function () {
@@ -27,11 +29,7 @@ describe("UserController", function () {
         let res: Response;
         let next: NextFunction
 
-
-
         beforeEach(function () {
-
-
             req = {
                 params: { id: "1" },
             } as unknown as Request;
@@ -42,7 +40,6 @@ describe("UserController", function () {
             } as unknown as Response;
 
             next = stub() as unknown as NextFunction;
-
 
         })
 

@@ -3,8 +3,7 @@ import { expect } from "chai";
 import { SinonStub, stub } from "sinon";
 import UserServices, { IUserServices } from "./../../src/services/user.services"
 import UserRepository from "../../src/repositories/user.repository";
-import UserModel, { UserAttributes } from "./../../src/models/user.model";
-import { func } from "joi";
+import { UserAttributes } from "./../../src/models/user.model";
 
 describe("User Services Test", function () {
 
@@ -32,7 +31,7 @@ describe("User Services Test", function () {
 
 
         beforeEach(async function () {
-            createUserStub = stub(userRepository, "create").resolves({ dataValues: userData } as UserModel);
+            createUserStub = stub(userRepository, "create").resolves(userData);
 
             user = await userServices.createUser(userData);
 
@@ -44,13 +43,7 @@ describe("User Services Test", function () {
         })
 
         it("should create new user", function () {
-            expect(user.name).to.be.equal(userData.name)
-            expect(user).to.be.equal(userData)
-            expect(user).to.be.a("object")
-            expect(user.email).to.be.a("string")
-            expect(user.name).to.be.a("string")
-            expect(user.id).to.be.a("number")
-            expect(user.password).to.be.a("string")
+            expect(user).to.deep.equal(userData)
         })
 
         it("test is return correct type", function () {

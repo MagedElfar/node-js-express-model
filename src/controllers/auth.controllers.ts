@@ -3,13 +3,19 @@ import { NextFunction, Request, Response } from "express";
 import { setError } from "../utility/error-format";
 import { sendResponse } from "../utility/responseHelpers";
 import { IAuthServices } from "../services/auth.services";
+import { ILogger } from "../utility/logger";
 
 export class AuthController {
 
     private authServices: IAuthServices
+    private logger: ILogger
 
-    constructor(authServices: IAuthServices) {
-        this.authServices = authServices
+    constructor(
+        authServices: IAuthServices,
+        logger: ILogger
+    ) {
+        this.authServices = authServices;
+        this.logger = logger
     }
 
 
@@ -20,11 +26,24 @@ export class AuthController {
 
             const singUpData = await this.authServices.signup(req.body)
 
+            this.logger.info("new user signup", null, {
+                user: {
+                    name: singUpData.user.name,
+                    email: singUpData.user.email
+                }
+            })
+
             sendResponse(res, {
                 ...singUpData
             }, 201)
 
         } catch (error) {
+            this.logger.error(`signup failed`, null, {
+                user: {
+                    email: req.body.email
+                },
+                error: error
+            })
             next(error)
         }
 

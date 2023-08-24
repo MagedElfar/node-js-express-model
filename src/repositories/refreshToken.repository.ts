@@ -1,7 +1,7 @@
-import RefreshToken from "../models/refreshToken.model";
+import RefreshToken, { RefreshTokenAttributes } from "../models/refreshToken.model";
 import GenericRepository from "./genericRepository";
 
-export default class RefreshTokenRepository extends GenericRepository<RefreshToken> {
+export default class RefreshTokenRepository extends GenericRepository<RefreshToken, RefreshTokenAttributes> {
 
     constructor() {
         super(RefreshToken)

@@ -33,7 +33,7 @@ export default class RefreshTokenServices implements IRefreshTokenServices {
                 token
             })
 
-            return refreshToken.dataValues
+            return refreshToken
         } catch (error) {
             throw error
         }
@@ -46,7 +46,7 @@ export default class RefreshTokenServices implements IRefreshTokenServices {
 
             if (!refreshToken) return null;
 
-            return refreshToken.dataValues
+            return refreshToken
 
         } catch (error) {
             throw error

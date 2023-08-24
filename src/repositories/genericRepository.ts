@@ -1,43 +1,76 @@
 import { Attributes, UpdateOptions, Model, ModelStatic, WhereAttributeHashValue, WhereOptions } from "sequelize";
 import { MakeNullishOptional } from "sequelize/types/utils";
+import { ILogger, Logger } from "../utility/logger";
+import { setError } from "../utility/error-format";
 
-export default abstract class GenericRepository<T extends Model> {
+export default abstract class GenericRepository<T extends Model, I> {
 
     protected model: ModelStatic<T>
+    protected readonly logger: ILogger
 
     constructor(model: ModelStatic<T>) {
         this.model = model
+        this.logger = new Logger()
 
     }
 
-    public create(data: MakeNullishOptional<T["_creationAttributes"]>): Promise<T> {
-        return this.model.create(data)
+    public async create(data: MakeNullishOptional<T["_creationAttributes"]>): Promise<I> {
+        try {
+            const model = await this.model.create(data)
+
+            return model.dataValues
+
+        } catch (error) {
+            this.logger.error("database error", null, error)
+            throw setError(500, "database error")
+        }
+
     }
 
-    public findById(id: number): Promise<T | null> {
-        return this.model.findByPk(id)
+    public async findById(id: number): Promise<I | null> {
+        try {
+            const model = await this.model.findByPk(id)
+
+            return model?.dataValues
+        } catch (error) {
+            this.logger.error("database error", null, error)
+            throw setError(500, "database error")
+        }
     }
 
-    public findOne(data: WhereOptions<Attributes<T>>): Promise<T | null> {
-        return this.model.findOne({
-            where: data
-        })
+    public async findOne(data: WhereOptions<Attributes<T>>): Promise<I | null> {
+        try {
+            const model = await this.model.findOne({
+                where: data
+            });
+
+            return model?.dataValues
+        } catch (error) {
+            this.logger.error("database error", null, error)
+            throw setError(500, "database error")
+        }
     }
 
     // ... existing methods ...
 
-    public async update(id: number, updates: Partial<T>): Promise<T | null> {
-        const updateOptions: UpdateOptions = {
-            where: { id },
-        };
+    public async update(id: number, updates: Partial<T>): Promise<I | null> {
+        try {
+            const updateOptions: UpdateOptions = {
+                where: { id },
+            };
 
-        const [rowCount] = await this.model.update(updates, updateOptions);
+            const [rowCount] = await this.model.update(updates, updateOptions);
 
-        if (rowCount === 0) {
-            return null;
+            if (rowCount === 0) {
+                return null;
+            }
+
+            return await this.findById(id)
+
+        } catch (error) {
+            this.logger.error("database error", null, error)
+            throw setError(500, "database error")
         }
-
-        return this.findById(id)
     }
 
 

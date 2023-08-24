@@ -1,8 +1,8 @@
-import Product from "../models/product.model";
+import Product, { ProductAttributes } from "../models/product.model";
 import User from "../models/user.model";
 import GenericRepository from "./genericRepository";
 
-export default class ProductRepository extends GenericRepository<Product> {
+export default class ProductRepository extends GenericRepository<Product, ProductAttributes> {
 
     constructor() {
         super(Product)

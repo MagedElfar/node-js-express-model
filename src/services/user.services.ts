@@ -9,7 +9,7 @@ export interface IUserServices {
     findOne(data: Partial<UserAttributes>): Promise<UserAttributes | null>;
     updateOne(id: number, updateUserDto: UpdateUserDto): Promise<UserAttributes | null>;
     updateUser(id: number, updateUserDto: UpdateUserDto): Promise<UserAttributes | null>
-    deleteUser(id: number): Promise<void>;
+    deleteUser(id: number): Promise<number>;
 }
 
 export default class UserServices implements IUserServices {
@@ -24,7 +24,7 @@ export default class UserServices implements IUserServices {
         try {
             const user = await this.userRepository.create(createUserDto)
 
-            return user.dataValues
+            return user
         } catch (error) {
             throw error
         }
@@ -36,7 +36,7 @@ export default class UserServices implements IUserServices {
 
             if (!user) return null;
 
-            return user.dataValues
+            return user
 
         } catch (error) {
             throw error
@@ -50,7 +50,7 @@ export default class UserServices implements IUserServices {
 
             if (!user) return null;
 
-            return user.dataValues
+            return user
 
         } catch (error) {
             throw error
@@ -81,13 +81,11 @@ export default class UserServices implements IUserServices {
         }
     }
 
-    async deleteUser(id: number): Promise<void> {
+    async deleteUser(id: number): Promise<number> {
         try {
             const isDeleted = await this.userRepository.delete({ id })
 
-            if (isDeleted === 0) throw setError(400, "user not deleted")
-
-            return;
+            return isDeleted;
         } catch (error) {
             throw error
         }

@@ -5,11 +5,13 @@ import { Router } from "express"
 import permissionMiddleware from '../middlewares/permission.middleware';
 import * as userValidation from "./../validations/user.validations"
 import validation from "./../middlewares/validation.middleware"
+import { Logger } from '../utility/logger';
 
 const router = Router();
 
 const userController = new UserController(
-    new UserServices(new UserRepository())
+    new UserServices(new UserRepository()),
+    new Logger()
 );
 
 // router.post("/", userController.createUserHandler.bind(userController))

@@ -16,17 +16,13 @@ const router = Router();
 
 const authController = new AuthController(
     new AuthServices(
-        new UserServices(
-            new UserRepository()
-        ),
+        new UserServices(new UserRepository()),
         new JwtServices(),
-        new RefreshTokenServices(
-            new RefreshTokenRepository(),
-            new JwtServices()
-        ),
+        new RefreshTokenServices(new RefreshTokenRepository(), new JwtServices()),
         new NodeMailerServices(),
         new Logger()
-    )
+    ),
+    new Logger()
 );
 
 router.post("/signup", validation(authValidations.signupSchema), authController.signUpHandler.bind(authController))

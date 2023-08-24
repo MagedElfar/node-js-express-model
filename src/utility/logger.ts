@@ -12,7 +12,7 @@ if (!existsSync(logsDir)) {
 
 export interface ILogger {
     info(message: string, req: Request | null, logData?: any): void;
-    error(message: string, req: Request | null, error?: Error): void
+    error(message: string, req: Request | null, error?: any): void
 }
 
 export class Logger implements ILogger {

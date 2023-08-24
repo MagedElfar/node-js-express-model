@@ -34,7 +34,7 @@ const swaggerOptions: Options = {
             }
         ],
         tags,
-        paths
+        paths,
     },
     apis: []
 };

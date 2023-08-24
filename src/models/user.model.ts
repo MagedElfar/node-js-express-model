@@ -1,13 +1,18 @@
 // src/models/User.ts
 import { Model, DataTypes, Optional } from "sequelize";
 import DatabaseConfig from "./../db";
-import Product from "./product.model";
+
+export enum Role {
+    ADMIN = "admin",
+    CUSTOMER = "customer"
+}
 
 export interface UserAttributes {
     id: number;
     name: string;
     email: string;
     password: string;
+    role?: Role;
     createdAt?: Date;
     updatedAt?: Date;
 }
@@ -19,6 +24,7 @@ class User extends Model<UserAttributes, UserCreationAttributes> implements User
     public id!: number;
     public name!: string;
     public email!: string;
+    public role: Role;
     public readonly createdAt!: Date;
     public readonly updatedAt!: Date;
 }
@@ -41,6 +47,11 @@ User.init(
         },
         password: {
             type: DataTypes.STRING,
+            allowNull: false
+        },
+        role: {
+            type: DataTypes.ENUM(...Object.values(Role)),
+            defaultValue: Role.CUSTOMER,
             allowNull: false
         }
 

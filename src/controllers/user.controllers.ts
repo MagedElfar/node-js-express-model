@@ -3,13 +3,16 @@ import { NextFunction, Request, Response } from "express";
 import { setError } from "../utility/error-format";
 import { sendResponse } from "../utility/responseHelpers";
 import { IUserServices } from "../services/user.services";
+import { ILogger } from "../utility/logger";
 
 export class UserController {
 
     private userServices: IUserServices
+    private logger: ILogger;
 
-    constructor(userServices: IUserServices) {
-        this.userServices = userServices
+    constructor(userServices: IUserServices, logger: ILogger) {
+        this.userServices = userServices;
+        this.logger = logger
     }
 
     async getUserByIdHandler(req: Request, res: Response, next: NextFunction) {
@@ -69,8 +72,25 @@ export class UserController {
 
             const { id } = req.params
 
-            await this.userServices.deleteUser(+id)
+            const user = await this.userServices.findUserById(+id);
 
+            if (!user) throw setError(404, "user note exist")
+
+            const isDeleted = await this.userServices.deleteUser(+id);
+
+            if (!isDeleted) throw setError(404, "user note exist");
+
+            this.logger.info("delete user", null, {
+                user: {
+                    name: req.user?.name,
+                    email: req.user?.email
+                },
+                deletedUser: {
+                    id: user.id,
+                    name: user.name,
+                    email: user.email
+                }
+            })
 
             sendResponse(res, {}, 200)
 

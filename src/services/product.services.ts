@@ -21,7 +21,7 @@ export default class ProductServices implements IProductServices {
         try {
             const product = await this.productRepository.create(createProductDto)
 
-            const newProduct = await this.findById(product.dataValues.id)
+            const newProduct = await this.findById(product.id)
 
             return newProduct!
         } catch (error) {
