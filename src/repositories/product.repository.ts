@@ -1,5 +1,7 @@
 import Product, { ProductAttributes } from "../models/product.model";
+import ProductMedia from "../models/productMedia.model";
 import User from "../models/user.model";
+import { setError } from "../utility/error-format";
 import GenericRepository from "./genericRepository";
 
 export default class ProductRepository extends GenericRepository<Product, ProductAttributes> {
@@ -8,16 +10,31 @@ export default class ProductRepository extends GenericRepository<Product, Produc
         super(Product)
     }
 
-    public findById(id: number): Promise<Product | null> {
-        return this.model.findByPk(id, {
-            include: [
-                {
-                    model: User,
-                    attributes: ["id", "name", "email"],
-                    as: "user",
-                }
-            ]
-        })
-    }
+    async findById(id: number): Promise<ProductAttributes | null> {
+        try {
+            const model = await this.model.findByPk(id, {
+                include: [
+                    {
+                        model: User,
+                        attributes: ["id", "name", "email"],
+                        as: "user",
+                    },
+                    {
+                        model: ProductMedia,
+                        // attributes: ["id", "url", "storage_key", "isMain"],
+                        as: "media",
+                        required: false,
+                    },
 
+                ]
+            })
+
+            if (!model) return null
+
+            return model.dataValues
+        } catch (error) {
+            this.logger.error("database error", null, error)
+            throw setError(500, "database error")
+        }
+    }
 }

@@ -2,13 +2,19 @@ import { NextFunction, Request, Response } from "express";
 import { sendResponse } from "../utility/responseHelpers";
 import { IProductServices } from "../services/product.services";
 import { setError } from "../utility/error-format";
+import ProductMediaServices, { IProductMediaServices } from "../services/productMedia.services";
 
 export class ProductController {
 
-    private productServices: IProductServices
+    private productServices: IProductServices;
+    private readonly productMediaServices: IProductMediaServices;
 
-    constructor(productServices: IProductServices) {
-        this.productServices = productServices
+    constructor(
+        productServices: IProductServices,
+        productMediaServices: IProductMediaServices
+    ) {
+        this.productServices = productServices;
+        this.productMediaServices = productMediaServices
     }
 
 
@@ -16,11 +22,16 @@ export class ProductController {
 
         try {
 
+            let product;
 
-            const product = await this.productServices.create({
+            product = await this.productServices.create({
                 ...req.body,
                 userId: req.user?.id
             })
+
+            await this.productMediaServices.create(req, product.id, true);
+
+            product = await this.productServices.findById(product.id)
 
             sendResponse(res, {
                 product
@@ -45,6 +56,31 @@ export class ProductController {
             sendResponse(res, {
                 product
             }, 200)
+
+        } catch (error) {
+            next(error)
+        }
+
+    }
+
+    async deleteProductHandler(req: Request, res: Response, next: NextFunction) {
+
+        try {
+
+            const { id } = req.params
+
+            const product = await this.productServices.findById(+id)
+
+            if (!product) throw setError(404, "Product not exists")
+
+            await Promise.all(product.media!.map(async (media) => {
+                await this.productMediaServices.delete(media.id)
+            }))
+
+
+            await this.productServices.delete(product.id)
+
+            sendResponse(res, {}, 200)
 
         } catch (error) {
             next(error)

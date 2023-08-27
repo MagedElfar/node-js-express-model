@@ -1,14 +1,18 @@
 import { Model, DataTypes, Optional } from "sequelize";
 import DatabaseConfig from "./../db";
 import User from "./user.model";
+import { ProductMediaAttributes } from "./productMedia.model";
 
 export interface ProductAttributes {
     id: number;
     name: string;
     description: string;
     userId: number;
+    user?: UserAttributes;
+    media?: ProductAttributes[];
     createdAt?: Date;
     updatedAt?: Date;
+
 }
 
 interface ProductCreationAttributes extends Optional<ProductAttributes, "id"> { }

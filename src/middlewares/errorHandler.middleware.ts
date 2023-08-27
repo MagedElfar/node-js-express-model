@@ -6,15 +6,16 @@ export function errorHandler(err: any, req: Request, res: Response, next: NextFu
 
     const logger = new Logger()
 
+    const error = requestErrorFormat(err)
+
     logger.error(`error ocurred ${req.user ? `with user ${req.user.name}` : ""}`, req, {
         user: req.user ? {
             name: req.user.name,
             email: req.user.email
         } : null,
 
-        error: err
+        error
     })
 
-    const error = requestErrorFormat(err)
     res.status(err.status || err.response?.data.code || 500).json(error)
 }

@@ -1,4 +1,5 @@
 import dotenv from "dotenv";
+import * as path from "path";
 import { IDatabaseConfigOptions } from "./db";
 
 dotenv.config()
@@ -6,7 +7,8 @@ dotenv.config()
 interface IConfig {
     server: {
         port: number,
-        encryptionKey: string
+        encryptionKey: string,
+        mediaPath: string
     };
 
     db: IDatabaseConfigOptions,
@@ -19,6 +21,12 @@ interface IConfig {
     email: {
         user: string,
         password: string
+    },
+
+    cloud: {
+        apiKey: string,
+        apiSecret: string,
+        cloudName: string
     }
 }
 
@@ -30,7 +38,8 @@ class Config {
         this.configuration = {
             server: {
                 port: parseInt(process.env.PORT || "5000"),
-                encryptionKey: process.env.ENCRYPTION_KEY!
+                encryptionKey: process.env.ENCRYPTION_KEY!,
+                mediaPath: path.join(__dirname, "..", "public", "media"),
             },
 
             db: {
@@ -50,6 +59,12 @@ class Config {
             email: {
                 user: process.env.GOOGLE_USER!,
                 password: process.env.GOOGLE_PASSWORD!,
+            },
+
+            cloud: {
+                apiKey: process.env.CLOUD_API_KEY!,
+                apiSecret: process.env.CLOUD_API_SECRET!,
+                cloudName: process.env.CLOUD_NAME!
             }
         }
     }

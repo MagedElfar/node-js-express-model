@@ -4,6 +4,7 @@ import User from "../models/user.model";
 import { ModelStatic, QueryInterface } from "sequelize";
 import DatabaseConfig from "./../db"
 import RefreshToken from "../models/refreshToken.model";
+import ProductMedia from "../models/productMedia.model";
 
 // Get the existing indexes for the model from the database
 async function getExistingIndexes(queryInterface: QueryInterface, tableName: string): Promise<any> {
@@ -68,5 +69,6 @@ async function migration(models: ModelStatic<any>[]) {
 migration([
     User,
     Product,
+    ProductMedia,
     RefreshToken
 ])

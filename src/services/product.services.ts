@@ -1,12 +1,11 @@
 import { CreateProductDto } from "../dto/product.dto";
 import { ProductAttributes } from "../models/product.model";
 import ProductRepository from "../repositories/product.repository";
-import { setError } from "../utility/error-format";
 
 export interface IProductServices {
     create(createProductDto: CreateProductDto): Promise<ProductAttributes>;
-
     findById(id: number): Promise<ProductAttributes | null>;
+    delete(id: number): Promise<number>
 }
 
 export default class ProductServices implements IProductServices {
@@ -34,6 +33,17 @@ export default class ProductServices implements IProductServices {
             const product = await this.productRepository.findById(id)
 
             return product
+        } catch (error) {
+            throw error
+        }
+    }
+
+    async delete(id: number): Promise<number> {
+        try {
+
+            const isDeleted = await this.productRepository.delete({ id })
+
+            return isDeleted;
         } catch (error) {
             throw error
         }
