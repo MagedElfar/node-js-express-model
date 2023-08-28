@@ -96,7 +96,7 @@ class Config {
             "ENCRYPTION_KEY",
             "DB_DATABASE",
             "DB_USERNAME",
-            "DB_PASSWORD",
+            // "DB_PASSWORD",
             "DB_HOST",
             "DB_PORT",
             "JWT_SECRET",
