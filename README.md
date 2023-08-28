@@ -1,8 +1,9 @@
 ## Description
 
-It is a basic model for simple user rest-api system include "authentication & authorization"
+It is a basic model for simple user rest-api system include "Authentication & Authorization" using node js and MySQL database.
 
 API documentation using swagger:
+
 ex: [http://localhost:5000/api-docs/](http://localhost:5000/api-docs/)
 
 ## Installation
@@ -13,34 +14,44 @@ $ npm install
 
 ## Running the app
 
-```bash
 # development
+
+```bash
 $ npm run dev
+```
 
 # production mode
+
+```bash
 $ npm start
 ```
 
 ## Build the app
 
-```bash
 # build
+
+```bash
 $ npm run build
+```
 
 # production mode
+
+```bash
 $ npm start
 ```
 
 ## Test
 
-```bash
 # unit tests
+
+```bash
 $ npm run test
 ```
 
 ## Database Migration
 
-```bash
 # migration
+
+```bash
 $ npm run migration
 ```
