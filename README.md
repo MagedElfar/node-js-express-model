@@ -12,37 +12,29 @@ ex: [http://localhost:5000/api-docs/](http://localhost:5000/api-docs/)
 $ npm install
 ```
 
-# Running the app
+## Running the app
 
-## development
+### development
 
 ```bash
 $ npm run dev
 ```
 
-# production mode
-
-```bash
-$ npm start
-```
-
-# Build app
-
-## build
+### Build app
 
 ```bash
 $ npm run build
 ```
 
-# production mode
+### production mode
 
 ```bash
 $ npm start
 ```
 
-# Test
+## Test
 
-## unit tests
+### unit tests
 
 ```bash
 $ npm run test
