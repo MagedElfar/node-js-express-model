@@ -6,7 +6,7 @@ API documentation using swagger:
 
 ex: [http://localhost:5000/api-docs/](http://localhost:5000/api-docs/)
 
-# Installation
+## Installation
 
 ```bash
 $ npm install
@@ -34,7 +34,7 @@ $ npm start
 
 ## Test
 
-### unit tests
+### Unit tests
 
 ```bash
 $ npm run test
@@ -42,7 +42,7 @@ $ npm run test
 
 ## Database Migration
 
-### migration
+### Migration
 
 ```bash
 $ npm run migration
