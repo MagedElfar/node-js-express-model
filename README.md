@@ -6,15 +6,15 @@ API documentation using swagger:
 
 ex: [http://localhost:5000/api-docs/](http://localhost:5000/api-docs/)
 
-## Installation
+# Installation
 
 ```bash
 $ npm install
 ```
 
-## Running the app
+# Running the app
 
-# development
+## development
 
 ```bash
 $ npm run dev
@@ -26,9 +26,9 @@ $ npm run dev
 $ npm start
 ```
 
-## Build the app
+# Build app
 
-# build
+## build
 
 ```bash
 $ npm run build
@@ -40,17 +40,17 @@ $ npm run build
 $ npm start
 ```
 
-## Test
+# Test
 
-# unit tests
+## unit tests
 
 ```bash
 $ npm run test
 ```
 
-## Database Migration
+# Database Migration
 
-# migration
+## migration
 
 ```bash
 $ npm run migration
