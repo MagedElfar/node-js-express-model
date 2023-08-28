@@ -47,3 +47,7 @@ $ npm run test
 ```bash
 $ npm run migration
 ```
+
+## Environment Variables
+
+### PORT: **require port for running app ex: 5000;**
