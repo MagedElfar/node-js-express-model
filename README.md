@@ -48,9 +48,9 @@ $ npm start
 $ npm run test
 ```
 
-# Database Migration
+## Database Migration
 
-## migration
+### migration
 
 ```bash
 $ npm run migration
