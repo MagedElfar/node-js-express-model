@@ -35,18 +35,10 @@ export enum Dependencies {
 }
 
 // diContainer.js
-class DIContainer {
-    private static instance: DIContainer
+export default class DIContainer {
     private dependencies: any
-    private constructor() {
+    constructor() {
         this.dependencies = {};
-    }
-
-    static createInstance(): DIContainer {
-        if (!DIContainer.instance) {
-            DIContainer.instance = new DIContainer();
-        }
-        return DIContainer.instance;
     }
 
     register<T>(key: string, dependency: T): void {
@@ -61,65 +53,65 @@ class DIContainer {
     }
 }
 
-const dIContainer = DIContainer.createInstance();
+// const dIContainer = DIContainer.createInstance();
 
-//register dependencies
-dIContainer.register(Dependencies.Logger, new Logger());
+// //register dependencies
+// dIContainer.register(Dependencies.Logger, new Logger());
 
-dIContainer.register(Dependencies.EmailServices, new NodeMailerServices());
+// dIContainer.register(Dependencies.EmailServices, new NodeMailerServices());
 
-dIContainer.register(Dependencies.StorageServices, new CloudStorageService(dIContainer.resolve(Dependencies.Logger)));
-
-
-//repository dependencies
-dIContainer.register(Dependencies.UserRepository, new UserRepository());
-
-dIContainer.register(Dependencies.RefreshTokenRepository, new RefreshTokenRepository());
-
-dIContainer.register(Dependencies.ProductRepository, new ProductRepository());
-
-dIContainer.register(Dependencies.ProductMediaRepository, new ProductMediaRepository());
-
-//services dependencies
-dIContainer.register(Dependencies.JwtServices, new JwtServices());
-
-dIContainer.register(Dependencies.RefreshTokenServices, new RefreshTokenServices(
-    dIContainer.resolve(Dependencies.RefreshTokenRepository),
-    dIContainer.resolve(Dependencies.JwtServices)
-))
-
-dIContainer.register(Dependencies.UserServices, new UserServices(dIContainer.resolve(Dependencies.UserRepository)));
-
-dIContainer.register(Dependencies.AuthServices, new AuthServices(
-    dIContainer.resolve(Dependencies.UserServices),
-    dIContainer.resolve(Dependencies.JwtServices),
-    dIContainer.resolve(Dependencies.RefreshTokenServices),
-    dIContainer.resolve(Dependencies.EmailServices),
-    dIContainer.resolve(Dependencies.Logger)
-));
+// dIContainer.register(Dependencies.StorageServices, new CloudStorageService(dIContainer.resolve(Dependencies.Logger)));
 
 
-dIContainer.register(Dependencies.ProductServices, new ProductServices(dIContainer.resolve(Dependencies.ProductRepository)))
+// //repository dependencies
+// dIContainer.register(Dependencies.UserRepository, new UserRepository());
 
-dIContainer.register(Dependencies.ProductMediaServices, new ProductMediaServices(
-    dIContainer.resolve(Dependencies.ProductMediaRepository),
-    dIContainer.resolve(Dependencies.StorageServices)
-));
+// dIContainer.register(Dependencies.RefreshTokenRepository, new RefreshTokenRepository());
+
+// dIContainer.register(Dependencies.ProductRepository, new ProductRepository());
+
+// dIContainer.register(Dependencies.ProductMediaRepository, new ProductMediaRepository());
+
+// //services dependencies
+// dIContainer.register(Dependencies.JwtServices, new JwtServices());
+
+// dIContainer.register(Dependencies.RefreshTokenServices, new RefreshTokenServices(
+//     dIContainer.resolve(Dependencies.RefreshTokenRepository),
+//     dIContainer.resolve(Dependencies.JwtServices)
+// ))
+
+// dIContainer.register(Dependencies.UserServices, new UserServices(dIContainer.resolve(Dependencies.UserRepository)));
+
+// dIContainer.register(Dependencies.AuthServices, new AuthServices(
+//     dIContainer.resolve(Dependencies.UserServices),
+//     dIContainer.resolve(Dependencies.JwtServices),
+//     dIContainer.resolve(Dependencies.RefreshTokenServices),
+//     dIContainer.resolve(Dependencies.EmailServices),
+//     dIContainer.resolve(Dependencies.Logger)
+// ));
 
 
-//controllers dependencies
-dIContainer.register(Dependencies.AuthController, new AuthController(
-    dIContainer.resolve(Dependencies.AuthServices),
-    dIContainer.resolve(Dependencies.Logger)
-))
+// dIContainer.register(Dependencies.ProductServices, new ProductServices(dIContainer.resolve(Dependencies.ProductRepository)))
 
-dIContainer.register(Dependencies.UserController, new UserController(
-    dIContainer.resolve(Dependencies.UserServices),
-    dIContainer.resolve(Dependencies.Logger)
-))
+// dIContainer.register(Dependencies.ProductMediaServices, new ProductMediaServices(
+//     dIContainer.resolve(Dependencies.ProductMediaRepository),
+//     dIContainer.resolve(Dependencies.StorageServices)
+// ));
 
-dIContainer.register(Dependencies.ProductController, new ProductController(
-    dIContainer.resolve(Dependencies.ProductServices),
-    dIContainer.resolve(Dependencies.ProductMediaServices)
-))
-export default dIContainer
+
+// //controllers dependencies
+// dIContainer.register(Dependencies.AuthController, new AuthController(
+//     dIContainer.resolve(Dependencies.AuthServices),
+//     dIContainer.resolve(Dependencies.Logger)
+// ))
+
+// dIContainer.register(Dependencies.UserController, new UserController(
+//     dIContainer.resolve(Dependencies.UserServices),
+//     dIContainer.resolve(Dependencies.Logger)
+// ))
+
+// dIContainer.register(Dependencies.ProductController, new ProductController(
+//     dIContainer.resolve(Dependencies.ProductServices),
+//     dIContainer.resolve(Dependencies.ProductMediaServices)
+// ))
+// export default dIContainer
