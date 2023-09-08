@@ -1,7 +1,7 @@
 import config from "../config";
 import { SendEmailDto } from "../dto/email.dto";
 import nodemailer, { Transporter } from "nodemailer"
-import { setError } from "../utility/error-format";
+import { InternalServerError } from "../utility/errors";
 import { Logger } from "../utility/logger";
 
 export interface IEmailServices {
@@ -49,7 +49,7 @@ export default class NodeMailerServices implements IEmailServices {
             this.transporter.sendMail(mailDetails, function (err, data) {
                 if (err) {
                     logger.error(`${sendEmailDto.subject} email didn't sent to ${sendEmailDto.to}`, null, err);
-                    reject(setError(500, "Error Occurs"))
+                    reject(new InternalServerError("Sent Email error"))
                 } else {
                     logger.info(`${sendEmailDto.subject} email sent successfully to ${sendEmailDto.to}`, null);
                     resolve(true)

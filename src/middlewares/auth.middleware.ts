@@ -1,11 +1,10 @@
-// src/middleware/authMiddleware.ts
+import { AuthorizationError } from './../utility/errors';
 import passport from "passport";
 import { Request, Response, NextFunction } from "express";
 import { Strategy as JwtStrategy, ExtractJwt, StrategyOptions } from "passport-jwt";
 import UserServices, { IUserServices } from "../services/user.services";
 import { UserAttributes } from "../models/user.model";
 import config from "../config";
-import { setError } from "../utility/error-format";
 import UserRepository from "../repositories/user.repository";
 
 class AuthMiddleware {
@@ -45,7 +44,7 @@ class AuthMiddleware {
                 return next(err);
             }
             if (!user) {
-                next(setError(401, "Authentication failed. Token is invalid or expired."))
+                next(new AuthorizationError("Authentication failed. Token is invalid or expired."))
             }
             req.user = user;
             next();

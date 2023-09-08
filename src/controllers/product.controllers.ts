@@ -1,8 +1,8 @@
 import { NextFunction, Request, Response } from "express";
 import { sendResponse } from "../utility/responseHelpers";
 import { IProductServices } from "../services/product.services";
-import { setError } from "../utility/error-format";
-import ProductMediaServices, { IProductMediaServices } from "../services/productMedia.services";
+import { NotFoundError } from "../utility/errors";
+import { IProductMediaServices } from "../services/productMedia.services";
 
 export class ProductController {
 
@@ -51,7 +51,7 @@ export class ProductController {
 
             const product = await this.productServices.findById(+id)
 
-            if (!product) throw setError(404, "Product not exists")
+            if (!product) throw new NotFoundError("Product not exists")
 
             sendResponse(res, {
                 product
@@ -71,7 +71,7 @@ export class ProductController {
 
             const product = await this.productServices.findById(+id)
 
-            if (!product) throw setError(404, "Product not exists")
+            if (!product) throw new NotFoundError("Product not exists")
 
             await Promise.all(product.media!.map(async (media) => {
                 await this.productMediaServices.delete(media.id)

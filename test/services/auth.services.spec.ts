@@ -12,6 +12,8 @@ import RefreshTokenServices, { IRefreshTokenServices } from '../../src/services/
 import RefreshTokenRepository from '../../src/repositories/refreshToken.repository';
 import { RefreshTokenAttributes } from '../../src/models/refreshToken.model';
 import { UserAttributes } from '../../src/models/user.model';
+import authDIContainer from "./../../src/dependencies/auth.dependencies";
+import { Dependencies } from "./../../src/utility/diContainer"
 
 describe("Auth Services", function () {
     let authServices: IAuthServices;
@@ -29,15 +31,11 @@ describe("Auth Services", function () {
     };
 
     beforeEach(function () {
-        userService = new UserServices(new UserRepository());
-        jwtServices = new JwtServices()
-        refreshTokenServices = new RefreshTokenServices(
-            new RefreshTokenRepository(),
-            new JwtServices()
-        )
-        emailServices = new NodeMailerServices()
-        logger = new Logger()
-
+        userService = authDIContainer.resolve(Dependencies.UserServices)
+        jwtServices = authDIContainer.resolve(Dependencies.JwtServices)
+        refreshTokenServices = authDIContainer.resolve(Dependencies.RefreshTokenServices)
+        emailServices = authDIContainer.resolve(Dependencies.EmailServices)
+        logger = authDIContainer.resolve(Dependencies.Logger)
 
         authServices = new AuthServices(
             userService,
@@ -402,7 +400,7 @@ describe("Auth Services", function () {
 
     describe("logout method", function () {
         let refreshTokenFindOneStub: SinonStub;
-        let refreshTokenDeleteOneMock: SinonExpectation;
+        let refreshTokenDeleteOneStub: SinonStub;
 
         const refreshToken: RefreshTokenAttributes = {
             id: 1,
@@ -410,13 +408,15 @@ describe("Auth Services", function () {
             token: "refresh token"
         }
 
+
         beforeEach(function () {
             refreshTokenFindOneStub = stub(refreshTokenServices, "findOne");
-            refreshTokenDeleteOneMock = mock(refreshTokenServices).expects("deleteOne")
+            refreshTokenDeleteOneStub = stub(refreshTokenServices, "deleteOne")
         })
 
         afterEach(function () {
-            refreshTokenFindOneStub.restore()
+            refreshTokenFindOneStub.restore();
+            refreshTokenDeleteOneStub.restore()
         })
 
         it("should call delete refresh token method if token exist in DB", async function () {
@@ -424,9 +424,9 @@ describe("Auth Services", function () {
 
             await authServices.logout(refreshToken.token);
 
-            expect(refreshTokenDeleteOneMock.calledOnce).to.be.true
+            expect(refreshTokenDeleteOneStub.calledOnce).to.be.true
 
-            refreshTokenDeleteOneMock.verify();
+
         })
 
         it("shouldn't call delete refresh token method if token exist in DB", async function () {
@@ -434,7 +434,7 @@ describe("Auth Services", function () {
 
             await authServices.logout(refreshToken.token);
 
-            expect(refreshTokenDeleteOneMock.notCalled).to.be.true
+            expect(refreshTokenDeleteOneStub.notCalled).to.be.true
         })
     })
 })

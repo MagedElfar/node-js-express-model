@@ -1,7 +1,7 @@
 import { Attributes, UpdateOptions, Model, ModelStatic, WhereAttributeHashValue, WhereOptions } from "sequelize";
 import { MakeNullishOptional } from "sequelize/types/utils";
 import { ILogger, Logger } from "../utility/logger";
-import { setError } from "../utility/error-format";
+import { InternalServerError } from "../utility/errors";
 
 export default abstract class GenericRepository<T extends Model, I> {
 
@@ -22,7 +22,7 @@ export default abstract class GenericRepository<T extends Model, I> {
 
         } catch (error) {
             this.logger.error("database error", null, error)
-            throw setError(500, "database error")
+            throw new InternalServerError("database error")
         }
 
     }
@@ -34,7 +34,7 @@ export default abstract class GenericRepository<T extends Model, I> {
             return model?.dataValues
         } catch (error) {
             this.logger.error("database error", null, error)
-            throw setError(500, "database error")
+            throw new InternalServerError("database error")
         }
     }
 
@@ -47,7 +47,7 @@ export default abstract class GenericRepository<T extends Model, I> {
             return model?.dataValues
         } catch (error) {
             this.logger.error("database error", null, error)
-            throw setError(500, "database error")
+            throw new InternalServerError("database error")
         }
     }
 
@@ -69,14 +69,20 @@ export default abstract class GenericRepository<T extends Model, I> {
 
         } catch (error) {
             this.logger.error("database error", null, error)
-            throw setError(500, "database error")
+            throw new InternalServerError("database error")
         }
     }
 
 
-    public delete(option: WhereAttributeHashValue<Attributes<T>[string]>): Promise<number> {
-        return this.model.destroy({
-            where: option
-        })
+    public async delete(option: WhereAttributeHashValue<Attributes<T>[string]>): Promise<number> {
+        try {
+            return await this.model.destroy({
+                where: option
+            })
+        } catch (error) {
+            this.logger.error("database error", null, error)
+            throw new InternalServerError("database error")
+        }
+
     }
 }

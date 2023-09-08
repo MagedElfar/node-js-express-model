@@ -4,6 +4,7 @@
   "description": "",
   "main": "src/index.ts",
   "scripts": {
+    "rand": "nodemon server.js",
     "test": "ts-mocha -r esm -p tsconfig.json test/**/*.spec.ts",
     "dev": "nodemon src/index.ts",
     "build": "tsc",

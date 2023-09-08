@@ -1,9 +1,9 @@
 // src/controllers/userController.ts
 import { NextFunction, Request, Response } from "express";
-import { setError } from "../utility/error-format";
 import { sendResponse } from "../utility/responseHelpers";
 import { IUserServices } from "../services/user.services";
 import { ILogger } from "../utility/logger";
+import { NotFoundError } from "../utility/errors";
 
 export class UserController {
 
@@ -22,7 +22,7 @@ export class UserController {
 
             const user = await this.userServices.findUserById(+id)
 
-            if (!user) throw setError(404, "user doesn't exist")
+            if (!user) throw new NotFoundError("user doesn't exist")
 
             sendResponse(res, {
                 user
@@ -74,11 +74,11 @@ export class UserController {
 
             const user = await this.userServices.findUserById(+id);
 
-            if (!user) throw setError(404, "user note exist")
+            if (!user) throw new NotFoundError("user note exist")
 
             const isDeleted = await this.userServices.deleteUser(+id);
 
-            if (!isDeleted) throw setError(404, "user note exist");
+            if (!isDeleted) throw new NotFoundError("user note exist");
 
             this.logger.info("delete user", null, {
                 user: {

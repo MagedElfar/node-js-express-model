@@ -1,14 +1,15 @@
 import { expect } from "chai";
 import { stub, assert, SinonStub } from "sinon";
 import { UserController } from "./../../src/controllers/user.controllers";
-import UserServices from "./../../src/services/user.services";
-import UserRepository from "../../src/repositories/user.repository";
+import { IUserServices } from "./../../src/services/user.services";
 import { NextFunction, Request, Response } from "express"
-import { ILogger, Logger } from "../../src/utility/logger";
+import { ILogger } from "../../src/utility/logger";
+import userDIContainer from "./../../src/dependencies/user.dependencies";
+import { Dependencies } from "./../../src/utility/diContainer"
 
 describe("UserController", function () {
     let userController: UserController;
-    let userServices: UserServices;
+    let userServices: IUserServices;
     let logger: ILogger
 
     const userData = {
@@ -19,9 +20,9 @@ describe("UserController", function () {
     };
 
     beforeEach(function () {
-        userServices = new UserServices(new UserRepository());
-        logger = new Logger()
-        userController = new UserController(userServices, logger);
+        userServices = userDIContainer.resolve(Dependencies.UserServices)
+        logger = userDIContainer.resolve(Dependencies.Logger)
+        userController = userDIContainer.resolve(Dependencies.UserController)
     });
 
     describe("Get User By ID", function () {
@@ -79,6 +80,8 @@ describe("UserController", function () {
             await userController.getUserByIdHandler(req, res, next)
 
             expect(findUserByIdStub.calledWith(userData.id)).to.be.true
+
+            findUserByIdStub.restore()
         })
     })
 });

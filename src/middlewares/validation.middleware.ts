@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import Joi from "joi";
-import { setError } from "./../utility/error-format";
+import { BadRequestError } from "../utility/errors";
 
 export default function (schema: Joi.ObjectSchema, type = "body") {
 
@@ -29,7 +29,10 @@ export default function (schema: Joi.ObjectSchema, type = "body") {
 
 
         if (schemaErr.error) {
-            return next(setError(400, schemaErr.error?.message.split(". ")))
+            // return next(setError(400, schemaErr.error?.message.split(". ")))
+
+            return next(new BadRequestError(schemaErr.error?.message.split(".")))
+
         }
 
         next()

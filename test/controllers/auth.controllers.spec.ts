@@ -1,16 +1,11 @@
 import { SinonStub, stub, mock, assert, SinonExpectation, SinonMock } from 'sinon';
 import { NextFunction, Request, Response } from "express"
 import { AuthController } from '../../src/controllers/auth.controllers';
-import { ILogger, Logger } from '../../src/utility/logger';
-import AuthServices, { IAuthServices } from '../../src/services/auth.services';
-import UserServices from '../../src/services/user.services';
-import UserRepository from '../../src/repositories/user.repository';
-import JwtServices from '../../src/services/jwt.services';
-import RefreshTokenRepository from '../../src/repositories/refreshToken.repository';
-import NodeMailerServices from '../../src/services/email.services';
-import RefreshTokenServices from '../../src/services/refreshTokwn.services';
+import { ILogger } from '../../src/utility/logger';
+import { IAuthServices } from '../../src/services/auth.services';
 import { LoginDto, SignupDto } from "../../src/dto/auth.dto";
-import { expect } from 'chai';
+import authDIContainer from "./../../src/dependencies/auth.dependencies";
+import { Dependencies } from "./../../src/utility/diContainer"
 
 describe("Auth Controllers", function () {
     let authController: AuthController
@@ -18,17 +13,11 @@ describe("Auth Controllers", function () {
     let logger: ILogger;
 
     this.beforeAll(function () {
-        authServices = new AuthServices(
-            new UserServices(new UserRepository()),
-            new JwtServices(),
-            new RefreshTokenServices(new RefreshTokenRepository(), new JwtServices()),
-            new NodeMailerServices(),
-            new Logger()
-        )
+        authServices = authDIContainer.resolve(Dependencies.AuthServices)
 
-        logger = new Logger()
+        logger = authDIContainer.resolve(Dependencies.Logger)
 
-        authController = new AuthController(authServices, logger)
+        authController = authDIContainer.resolve(Dependencies.AuthController)
     })
 
     describe("signup Handler", function () {

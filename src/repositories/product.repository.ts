@@ -1,7 +1,7 @@
 import Product, { ProductAttributes } from "../models/product.model";
 import ProductMedia from "../models/productMedia.model";
 import User from "../models/user.model";
-import { setError } from "../utility/error-format";
+import { InternalServerError } from "../utility/errors";
 import GenericRepository from "./genericRepository";
 
 export default class ProductRepository extends GenericRepository<Product, ProductAttributes> {
@@ -34,7 +34,7 @@ export default class ProductRepository extends GenericRepository<Product, Produc
             return model.dataValues
         } catch (error) {
             this.logger.error("database error", null, error)
-            throw setError(500, "database error")
+            throw new InternalServerError("database error")
         }
     }
 }

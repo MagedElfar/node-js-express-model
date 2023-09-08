@@ -1,5 +1,5 @@
 import { RefreshTokenAttributes } from './../models/refreshToken.model';
-import { setError } from "../utility/error-format";
+import { NotFoundError } from "../utility/errors";
 import { CreateRefreshTokenDto } from '../dto/refreshToken.dto';
 import RefreshTokenRepository from '../repositories/refreshToken.repository';
 import JwtServices from './jwt.services';
@@ -58,7 +58,7 @@ export default class RefreshTokenServices implements IRefreshTokenServices {
         try {
             const isDeleted = await this.refreshTokenRepository.delete({ id })
 
-            if (isDeleted === 0) throw setError(400, "record not exist")
+            if (isDeleted === 0) throw new NotFoundError("record not exist")
 
             return;
         } catch (error) {

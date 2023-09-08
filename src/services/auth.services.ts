@@ -2,7 +2,7 @@ import { UserAttributes } from './../models/user.model';
 import { RestPasswordDto } from './../dto/auth.dto';
 import config from "../config";
 import { LoginDto, SignupDto } from "../dto/auth.dto";
-import { setError } from "../utility/error-format";
+import { AuthorizationError, BadRequestError, NotFoundError } from "../utility/errors";
 import { IJwtServices } from "./jwt.services";
 import { IUserServices } from "./user.services";
 import * as bcrypt from "bcrypt";
@@ -52,7 +52,7 @@ export default class AuthServices implements IAuthServices {
         try {
             let user = await this.userServices.findOne({ email: signupDto.email });
 
-            if (user) throw setError(400, "email is already used");
+            if (user) throw new BadRequestError("email is already used");
 
             const password = await bcrypt.hash(signupDto.password, 10);
 
@@ -82,10 +82,10 @@ export default class AuthServices implements IAuthServices {
     }> {
         try {
             const user = await this.userServices.findOne({ email: loginDto.email });
-            if (!user) throw setError(401, "Invalid Email or Password")
+            if (!user) throw new AuthorizationError("Invalid Email or Password")
 
             const isSame = await bcrypt.compare(loginDto.password, user.password)
-            if (!isSame) throw setError(401, "Invalid Email or Password")
+            if (!isSame) throw new AuthorizationError("Invalid Email or Password")
 
             const accessToken: string = this.jwtServices.createToken({ id: user.id }, config.jwt.expire)
 
@@ -108,11 +108,11 @@ export default class AuthServices implements IAuthServices {
             const refreshToken = await this.refreshTokenServices.findOne({ token });
 
 
-            if (!refreshToken) throw setError(401, "Authentication failed. Token is invalid or expired.");
+            if (!refreshToken) throw new AuthorizationError("Authentication failed. Token is invalid or expired.");
 
             const tokenData = this.jwtServices.verifyToken(refreshToken.token);
 
-            if (!tokenData) throw setError(401, "Authentication failed. Token is invalid or expired.");
+            if (!tokenData) throw new AuthorizationError("Authentication failed. Token is invalid or expired.");
 
             const accessToken: string = this.jwtServices.createToken({ id: tokenData.id }, config.jwt.expire)
 
@@ -141,11 +141,9 @@ export default class AuthServices implements IAuthServices {
     async restPasswordEmail(email: string) {
         try {
 
-
-
             const user = await this.userServices.findOne({ email });
 
-            if (!user) throw setError(404, "doesn't user match this email");
+            if (!user) throw new NotFoundError("doesn't user match this email");
 
             const token: string = this.jwtServices.createToken({ id: user.id }, "15m")
 
@@ -169,11 +167,11 @@ export default class AuthServices implements IAuthServices {
         try {
             const token = this.jwtServices.verifyToken(restPasswordDto.token);
 
-            if (!token) throw (setError(401, "Invalid or Expire token"));
+            if (!token) throw new BadRequestError("Invalid or Expire token");
 
             let user = await this.userServices.findUserById(token.id);
 
-            if (!user) throw setError(400, "doesn't user match this email");
+            if (!user) throw new NotFoundError("doesn't user match this email");
 
             const password = await bcrypt.hash(restPasswordDto.password, 10);
 

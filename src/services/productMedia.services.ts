@@ -2,7 +2,6 @@ import { Request } from "express";
 import { CreateProductMediaDto } from "../dto/productMedia.dto";
 import { ProductMediaAttributes } from "../models/productMedia.model";
 import ProductMediaRepository from "../repositories/productMedia.repository";
-import { setError } from "../utility/error-format";
 import { ICloudStorageService } from "./cloudeStorge.services";
 
 export interface IProductMediaServices {

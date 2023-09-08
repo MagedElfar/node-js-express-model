@@ -1,9 +1,11 @@
 import { UpdateUserDto } from './../../src/dto/user.dto';
 import { expect } from "chai";
 import { SinonStub, stub } from "sinon";
-import UserServices, { IUserServices } from "./../../src/services/user.services"
+import { IUserServices } from "./../../src/services/user.services"
 import UserRepository from "../../src/repositories/user.repository";
 import { UserAttributes } from "./../../src/models/user.model";
+import userDIContainer from "./../../src/dependencies/user.dependencies";
+import { Dependencies } from "./../../src/utility/diContainer";
 
 describe("User Services Test", function () {
 
@@ -18,10 +20,9 @@ describe("User Services Test", function () {
     };
 
     beforeEach(function () {
-        userRepository = new UserRepository();
+        userRepository = userDIContainer.resolve(Dependencies.UserRepository)
 
-        userServices = new UserServices(userRepository);
-
+        userServices = userDIContainer.resolve(Dependencies.UserServices)
     })
 
     describe("create user", () => {

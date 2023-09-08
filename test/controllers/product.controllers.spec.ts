@@ -1,16 +1,13 @@
 import { ProductController } from './../../src/controllers/product.controllers';
-import { SinonStub, stub, mock, assert, SinonMock } from 'sinon';
+import { SinonStub, stub, mock, assert } from 'sinon';
 import { NextFunction, Request, Response } from "express"
-import { ILogger, Logger } from '../../src/utility/logger';
-import { expect } from 'chai';
-import ProductServices, { IProductServices } from '../../src/services/product.services';
-import ProductMediaServices, { IProductMediaServices } from '../../src/services/productMedia.services';
-import ProductRepository from '../../src/repositories/product.repository';
-import ProductMediaRepository from '../../src/repositories/productMedia.repository';
-import CloudStorageService from '../../src/services/cloudeStorge.services';
+import { IProductServices } from '../../src/services/product.services';
+import { IProductMediaServices } from '../../src/services/productMedia.services';
 import { CreateProductDto } from '../../src/dto/product.dto';
 import { UserAttributes } from '../../src/models/user.model';
 import { ProductMediaAttributes } from '../../src/models/productMedia.model';
+import productDIContainer from "./../../src/dependencies/product.dependencies";
+import { Dependencies } from "./../../src/utility/diContainer";
 
 describe("Product Controller", function () {
     let productController: ProductController;
@@ -18,14 +15,11 @@ describe("Product Controller", function () {
     let productMediaServices: IProductMediaServices;
 
     this.beforeAll(function () {
-        productServices = new ProductServices(new ProductRepository())
+        productServices = productDIContainer.resolve(Dependencies.ProductServices)
 
-        productMediaServices = new ProductMediaServices(
-            new ProductMediaRepository(),
-            new CloudStorageService(new Logger())
-        )
+        productMediaServices = productDIContainer.resolve(Dependencies.ProductMediaServices)
 
-        productController = new ProductController(productServices, productMediaServices)
+        productController = productDIContainer.resolve(Dependencies.ProductController)
     })
 
     describe("create product Handler", function () {

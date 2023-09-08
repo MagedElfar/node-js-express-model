@@ -1,6 +1,4 @@
-// src/controllers/userController.ts
 import { NextFunction, Request, Response } from "express";
-import { setError } from "../utility/error-format";
 import { sendResponse } from "../utility/responseHelpers";
 import { IAuthServices } from "../services/auth.services";
 import { ILogger } from "../utility/logger";

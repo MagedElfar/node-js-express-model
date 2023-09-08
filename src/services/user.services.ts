@@ -1,7 +1,7 @@
 import { CreateUserDto, UpdateUserDto } from "../dto/user.dto";
-import User, { UserAttributes } from "../models/user.model";
+import { UserAttributes } from "../models/user.model";
 import UserRepository from "../repositories/user.repository";
-import { setError } from "../utility/error-format";
+import { BadRequestError, NotFoundError } from "../utility/errors";
 
 export interface IUserServices {
     createUser(createUserDto: CreateUserDto): Promise<UserAttributes>;
@@ -61,11 +61,11 @@ export default class UserServices implements IUserServices {
         try {
             const user = await this.findUserById(id);
 
-            if (!user) throw setError(404, "user not exist")
+            if (!user) throw new NotFoundError("user not exist")
 
             const userEmail = await this.findOne({ email: updateUserDto.email })
 
-            if (userEmail && (userEmail.id !== id)) throw setError(400, "email is already exist")
+            if (userEmail && (userEmail.id !== id)) throw new BadRequestError("email is already exist")
 
             return await this.updateOne(id, updateUserDto)
         } catch (error) {
